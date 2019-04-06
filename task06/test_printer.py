@@ -63,7 +63,8 @@ def test_un_op(capsys):
 
 def test_fcall(capsys):
     a = PrettyPrinter()
-    a.visit_functioncall(FunctionCall(Reference('foo'), [Number(1), Number(2), Number(3)]))
+    a.visit_functioncall(FunctionCall(Reference('foo'),
+                                      [Number(1), Number(2), Number(3)]))
     out, err = capsys.readouterr()
     assert out == "foo(1, 2, 3);\n"
 
