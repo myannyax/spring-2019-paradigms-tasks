@@ -79,5 +79,28 @@ def test_pretty_print(capsys):
     assert out == ans
 
 
+def test_pretty_print_2(capsys):
+    pretty_print(FunctionDefinition('main', Function(['arg1'], [
+        Read('x'),
+        Print(Reference('x')),
+        Conditional(
+            BinaryOperation(Number(2), '==', Number(3)),
+            [
+                Conditional(Number(1), [], [])
+            ],
+            [
+                FunctionCall(Reference('exit'), [
+                    UnaryOperation('-', Reference('arg1'))
+                ])
+            ],
+        ),
+    ])))
+    out, err = capsys.readouterr()
+    ans = ("def main(arg1) {\n\tread x;\n\tprint x;"
+           "\n\tif ((2 == 3)) {\n\t\tif (1) {\n\t\t}"
+           "\n\t} else {\n\t\texit((-(arg1)));\n\t}\n}\n")
+    assert out == ans
+
+
 if __name__ == "__main__":
     pytest.main()

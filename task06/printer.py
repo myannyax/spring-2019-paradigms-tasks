@@ -54,9 +54,10 @@ class PrettyPrinter(model.ASTNodeVisitor):
         print("\t" * PrettyPrinter.number_of_tabs + "def "
               + functiondefinition.name, end="")
         print("(", end="")
-        for arg in functiondefinition.function.args:
-            pretty_print(arg, is_ind=False)
-            print(", ", end="")
+        for i in range(len(functiondefinition.function.args)):
+            print(functiondefinition.function.args[i], end="")
+            if i != len(functiondefinition.function.args) - 1:
+                print(", ", end="")
         print(") {")
         PrettyPrinter.number_of_tabs += 1
         for exp in functiondefinition.function.body:
