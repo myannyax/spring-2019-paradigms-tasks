@@ -39,7 +39,8 @@ class PrettyPrinter(model.ASTNodeVisitor):
             print()
 
     def visit_read(self, read):
-        print("\t" * PrettyPrinter.number_of_tabs + "read " + str(read.name), end="")
+        print("\t" * PrettyPrinter.number_of_tabs + "read " +
+              str(read.name), end="")
         print(";" * PrettyPrinter.is_ind, end="")
         if PrettyPrinter.is_ind:
             print()
