@@ -30,7 +30,7 @@ class ASTNodeVisitor(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def visit_functiondefinition(self, functiondefinition):
+    def visit_function_definition(self, functiondefinition):
         pass
 
     @abc.abstractmethod
@@ -42,7 +42,7 @@ class ASTNodeVisitor(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def visit_functioncall(self, functioncall):
+    def visit_function_call(self, functioncall):
         pass
 
     @abc.abstractmethod
@@ -50,11 +50,11 @@ class ASTNodeVisitor(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def visit_binaryoperation(self, binaryoperation):
+    def visit_binary_operation(self, binaryoperation):
         pass
 
     @abc.abstractmethod
-    def visit_unaryoperation(self, unaryoperation):
+    def visit_unary_operation(self, unaryoperation):
         pass
 
 
@@ -74,11 +74,20 @@ class Number(ASTNode):
     def __init__(self, value):
         self.value = int(value)
 
+    def __hash__(self):
+        return hash(self.value)
+
+    def __eq__(self, other):
+        return Number(self.value == other.value)
+
+    def __ne__(self, other):
+        return Number(self.value != other.value)
+
     def evaluate(self, scope):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_number(self)
+        return visitor.visit_number(self)
 
 
 class Function(ASTNode):
@@ -120,7 +129,7 @@ class FunctionDefinition(ASTNode):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_functiondefinition(self)
+        return visitor.visit_function_definition(self)
 
 
 class Conditional(ASTNode):
@@ -149,7 +158,7 @@ class Conditional(ASTNode):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_conditional(self)
+        return visitor.visit_conditional(self)
 
 
 class Print(ASTNode):
@@ -173,7 +182,7 @@ class Print(ASTNode):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_print(self)
+        return visitor.visit_print(self)
 
 
 class Read(ASTNode):
@@ -196,7 +205,7 @@ class Read(ASTNode):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_read(self)
+        return visitor.visit_read(self)
 
 
 class FunctionCall(ASTNode):
@@ -231,7 +240,7 @@ class FunctionCall(ASTNode):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_functioncall(self)
+        return visitor.visit_function_call(self)
 
 
 class Reference(ASTNode):
@@ -247,7 +256,7 @@ class Reference(ASTNode):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_reference(self)
+        return visitor.visit_reference(self)
 
 
 class BinaryOperation(ASTNode):
@@ -274,12 +283,25 @@ class BinaryOperation(ASTNode):
         self.lhs = lhs
         self.op = op
         self.rhs = rhs
+        self.funcs = {'+': (lambda x, y: int(x.value + y.value)),
+                      '-': (lambda x, y: int(x.value - y.value)),
+                      '*': (lambda x, y: int(x.value * y.value)),
+                      '/': (lambda x, y: int(x.value // y.value)),
+                      '%': (lambda x, y: int(x.value % y.value)),
+                      '==': (lambda x, y: int(x.value == y.value)),
+                      '!=': (lambda x, y: int(x.value != y.value)),
+                      '<': (lambda x, y: int(x.value < y.value)),
+                      '>': (lambda x, y: int(x.value > y.value)),
+                      '<=': (lambda x, y: int(x.value <= y.value)),
+                      '>=': (lambda x, y: int(x.value >= y.value)),
+                      '&&': (lambda x, y: int(x.value and y.value)),
+                      '||': (lambda x, y: int(x.value or y.value))}
 
     def evaluate(self, scope):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_binaryoperation(self)
+        return visitor.visit_binary_operation(self)
 
 
 class UnaryOperation(ASTNode):
@@ -301,4 +323,4 @@ class UnaryOperation(ASTNode):
         raise NotImplementedError
 
     def accept(self, visitor):
-        visitor.visit_unaryoperation(self)
+        return visitor.visit_unary_operation(self)
