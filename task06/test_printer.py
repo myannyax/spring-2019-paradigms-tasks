@@ -1,64 +1,63 @@
 from printer import *
 from model import *
+from textwrap import dedent
 import pytest
 
 
-def test_cond():
-    a = PrettyPrinter()
-    result = a.visit_conditional(Conditional(Number(42), [], []))
+def test_conditional():
+    program = Conditional(Number(42), [], [])
+    result = program.accept(PrettyPrinter())
     assert result == "if (42) {\n}\n"
 
 
-def test_fdef():
-    a = PrettyPrinter()
-    result = a.visit_function_definition(FunctionDefinition("foo",
-                                                            Function([], [])))
+def test_function_definition():
+    program = FunctionDefinition("foo", Function([], []))
+    result = program.accept(PrettyPrinter())
     assert result == "def foo() {\n}\n"
 
 
 def test_print():
-    a = PrettyPrinter()
-    result = a.visit_print(Print(Number(42)))
+    program = Print(Number(42))
+    result = program.accept(PrettyPrinter())
     assert result == "print 42;\n"
 
 
 def test_read():
-    a = PrettyPrinter()
-    result = a.visit_read(Read("x"))
+    program = Read("x")
+    result = program.accept(PrettyPrinter())
     assert result == "read x;\n"
 
 
 def test_number():
-    a = PrettyPrinter()
-    result = a.visit_number(Number(10))
+    program = Number(10)
+    result = program.accept(PrettyPrinter())
     assert result == "10;\n"
 
 
-def test_ref():
-    a = PrettyPrinter()
-    result = a.visit_reference(Reference("x"))
+def test_reference():
+    program = Reference("x")
+    result = program.accept(PrettyPrinter())
     assert result == "x;\n"
 
 
-def test_bin_op():
-    a = PrettyPrinter()
+def test_binary_operation():
     add = BinaryOperation(Number(2), "+", Number(3))
-    mul = BinaryOperation(Number(1), "*", add)
-    result = a.visit_binary_operation(mul)
+    program = BinaryOperation(Number(1), "*", add)
+    result = program.accept(PrettyPrinter())
     assert result == "(1 * (2 + 3));\n"
 
 
-def test_un_op():
-    a = PrettyPrinter()
-    result = a.visit_unary_operation(UnaryOperation("-", Number(42)))
+def test_unary_operation():
+    program = UnaryOperation("-", Number(42))
+    result = program.accept(PrettyPrinter())
     assert result == "(-42);\n"
 
 
-def test_fcall():
-    a = PrettyPrinter()
-    result = a.visit_function_call(FunctionCall(Reference("foo"),
-                                                [Number(1), Number(2),
-                                                 Number(3)]))
+def test_function_call():
+    program = FunctionCall(Reference("foo"), [Number(1),
+                                              Number(2),
+                                              Number(3)])
+    result = program.accept(PrettyPrinter())
     assert result == "foo(1, 2, 3);\n"
 
 
@@ -95,32 +94,36 @@ def test_pretty_print_2(capsys):
         ),
     ])))
     out, err = capsys.readouterr()
-    ans = "def main(arg1) {\n" \
-          "\tread x;\n" \
-          "\tprint x;\n" \
-          "\tif ((2 == 3)) {\n" \
-          "\t\tif (1) {\n" \
-          "\t\t}\n" \
-          "\t} else {\n" \
-          "\t\texit((-arg1));\n" \
-          "\t}\n" \
-          "}\n"
-    assert out == ans
+    ans = dedent(
+        '''
+        def main(arg1) {
+        \tread x;
+        \tprint x;
+        \tif ((2 == 3)) {
+        \t\tif (1) {
+        \t\t}
+        \t} else {
+        \t\texit((-arg1));
+        \t}
+        }\n''')
+    assert out == ans.lstrip()
 
 
-def test_fdef_2(capsys):
+def test_test_function_definition_2(capsys):
     f_def_1 = FunctionDefinition("foo_2", Function(["a", "b"],
                                                    [Print(Reference("a"))]))
     program = FunctionDefinition("foo", Function([], [f_def_1, Read("x")]))
     pretty_print(program)
     out, err = capsys.readouterr()
-    ans = "def foo() {\n" \
-          "\tdef foo_2(a, b) {\n" \
-          "\t\tprint a;\n" \
-          "\t}\n" \
-          "\tread x;\n" \
-          "}\n"
-    assert out == ans
+
+    ans = '''
+    def foo() {
+    \tdef foo_2(a, b) {
+    \t\tprint a;
+    \t}
+    \tread x;
+    }\n'''
+    assert out == dedent(ans).lstrip()
 
 
 if __name__ == "__main__":

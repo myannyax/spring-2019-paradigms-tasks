@@ -4,17 +4,23 @@ import model
 class PrettyPrinter(model.ASTNodeVisitor):
     def __init__(self):
         self.number_of_tabs = 0
-        self.is_instruction = True
+        self.is_statement = True
 
-    def visit_number(self, number):
-        if self.is_instruction:
-            result = "\t" * self.number_of_tabs
+    def add_leading_spaces(self):
+        if self.is_statement:
+            return "\t" * self.number_of_tabs
         else:
-            result = ""
-        result += str(number.value)
-        if self.is_instruction:
+            return ""
+
+    def end_line_if_statement(self, result):
+        if self.is_statement:
             result += ";\n"
         return result
+
+    def visit_number(self, number):
+        result = self.add_leading_spaces()
+        result += str(number.value)
+        return self.end_line_if_statement(result)
 
     def visit_conditional(self, conditional):
         result = "\t" * self.number_of_tabs + "if ("
@@ -39,90 +45,67 @@ class PrettyPrinter(model.ASTNodeVisitor):
     def visit_print(self, printt):
         result = "\t" * self.number_of_tabs + "print "
         result += self.format_(printt.expr, is_instruction=False)
-        result += ";\n"
-        return result
+        return self.end_line_if_statement(result)
 
     def visit_read(self, read):
         result = "\t" * self.number_of_tabs + \
                   "read " + str(read.name)
-        result += ";\n"
-        return result
+        return self.end_line_if_statement(result)
 
     def visit_reference(self, reference):
-        if self.is_instruction:
-            result = "\t" * self.number_of_tabs
-        else:
-            result = ""
+        result = self.add_leading_spaces()
         result += reference.name
-        if self.is_instruction:
-            result += ";\n"
-        return result
+        return self.end_line_if_statement(result)
 
-    def visit_function_definition(self, functiondefinition):
+    def visit_function_definition(self, function_definition):
         result = "\t" * self.number_of_tabs + \
-                  "def " + functiondefinition.name
+                  "def " + function_definition.name
         result += "("
-        for elem in functiondefinition.function.args[0:-1]:
+        for elem in function_definition.function.args[0:-1]:
             result += elem + ', '
-        if functiondefinition.function.args:
-            result += functiondefinition.function.args[-1]
+        if function_definition.function.args:
+            result += function_definition.function.args[-1]
         result += ") {\n"
         self.number_of_tabs += 1
-        for exp in functiondefinition.function.body:
+        for exp in function_definition.function.body:
             result += self.format_(exp)
         self.number_of_tabs -= 1
         result += "\t" * self.number_of_tabs + "}\n"
         return result
 
-    def visit_function_call(self, functioncall):
-        if self.is_instruction:
-            result = "\t" * self.number_of_tabs
-        else:
-            result = ""
-        result += self.format_(functioncall.fun_expr, is_instruction=False)
+    def visit_function_call(self, function_call):
+        result = self.add_leading_spaces()
+        result += self.format_(function_call.fun_expr, is_instruction=False)
         result += "("
-        for elem in functioncall.args[0:-1]:
+        for elem in function_call.args[0:-1]:
             result += self.format_(elem, is_instruction=False)
             result += ", "
-        if functioncall.args:
-            result += self.format_(functioncall.args[-1], is_instruction=False)
+        if function_call.args:
+            result += self.format_(function_call.args[-1], is_instruction=False)
         result += ")"
-        if self.is_instruction:
-            result += ";\n"
-        return result
+        return self.end_line_if_statement(result)
 
-    def visit_binary_operation(self, binaryoperation):
-        if self.is_instruction:
-            result = "\t" * self.number_of_tabs
-        else:
-            result = ""
+    def visit_binary_operation(self, binary_operation):
+        result = self.add_leading_spaces()
         result += "("
-        result += self.format_(binaryoperation.lhs, is_instruction=False)
-        result += " " + binaryoperation.op + " "
-        result += self.format_(binaryoperation.rhs, is_instruction=False)
+        result += self.format_(binary_operation.lhs, is_instruction=False)
+        result += " " + binary_operation.op + " "
+        result += self.format_(binary_operation.rhs, is_instruction=False)
         result += ")"
-        if self.is_instruction:
-            result += ";\n"
-        return result
+        return self.end_line_if_statement(result)
 
-    def visit_unary_operation(self, unaryoperation):
-        if self.is_instruction:
-            result = "\t" * self.number_of_tabs
-        else:
-            result = ""
-        result += "(" + unaryoperation.op
-        result += self.format_(unaryoperation.expr, is_instruction=False)
+    def visit_unary_operation(self, unary_operation):
+        result = self.add_leading_spaces()
+        result += "(" + unary_operation.op
+        result += self.format_(unary_operation.expr, is_instruction=False)
         result += ")"
-        if self.is_instruction:
-            result += ";\n"
-        return result
+        return self.end_line_if_statement(result)
 
-    def format_(self, program, *args, is_instruction=True):
-        instr = self.is_instruction
-        self.is_instruction = is_instruction
-        result = program.accept(self)
-        self.is_instruction = instr
-        return result
+    def format_(self, program, *, is_instruction=True):
+        new_printer = PrettyPrinter()
+        new_printer.is_statement = is_instruction
+        new_printer.number_of_tabs = self.number_of_tabs
+        return program.accept(new_printer)
 
 
 def pretty_print(program):

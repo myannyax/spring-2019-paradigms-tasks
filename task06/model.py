@@ -99,9 +99,6 @@ class Number(ASTNode):
     def __eq__(self, other):
         return Number(self.value == other.value)
 
-    def __ne__(self, other):
-        return Number(self.value != other.value)
-
     def accept(self, visitor):
         return visitor.visit_number(self)
 
