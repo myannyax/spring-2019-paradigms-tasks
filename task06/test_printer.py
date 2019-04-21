@@ -108,5 +108,19 @@ def test_pretty_print_2(capsys):
     assert out == ans
 
 
+def test_fdef_2(capsys):
+    program = FunctionDefinition("foo", Function([], [
+        FunctionDefinition("foo_2", Function(['a', 'b'], [Print(Reference("a"))])), Read("x")]))
+    pretty_print(program)
+    out, err = capsys.readouterr()
+    ans = "def foo() {\n" \
+          "\tdef foo_2(a, b) {\n" \
+          "\t\tprint a;\n" \
+          "\t}\n" \
+          "\tread x;\n" \
+          "}\n"
+    assert out == ans
+
+
 if __name__ == "__main__":
     pytest.main()

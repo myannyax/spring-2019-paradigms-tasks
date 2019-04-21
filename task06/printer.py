@@ -71,7 +71,7 @@ class PrettyPrinter(model.ASTNodeVisitor):
         for exp in functiondefinition.function.body:
             result += self.format_(exp)
         self.number_of_tabs -= 1
-        result += "}\n"
+        result += "\t" * self.number_of_tabs + "}\n"
         return result
 
     def visit_function_call(self, functioncall):
