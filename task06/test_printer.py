@@ -51,7 +51,7 @@ def test_bin_op():
 def test_un_op():
     a = PrettyPrinter()
     result = a.visit_unary_operation(UnaryOperation('-', Number(42)))
-    assert result == "(-(42));\n"
+    assert result == "(-42);\n"
 
 
 def test_fcall():
@@ -102,7 +102,7 @@ def test_pretty_print_2(capsys):
            "\t\tif (1) {\n"
            "\t\t}\n"
            "\t} else {\n"
-           "\t\texit((-(arg1)));\n"
+           "\t\texit((-arg1));\n"
            "\t}\n"
            "}\n")
     assert out == ans
