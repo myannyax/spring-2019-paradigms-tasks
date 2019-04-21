@@ -169,12 +169,12 @@ fn find_solution(f: &mut Field) -> Option<Field> {
 
 use std::sync::mpsc::Sender;
 
-fn spawn_tasks(pool: &threadpool::ThreadPool, f: &mut Field, tx: &Sender<Option<Field>>, curr_depth: i32) {
-    if curr_depth == 0 {
-        let tx1 = tx.clone();
+fn spawn_tasks(pool: &threadpool::ThreadPool, f: &mut Field, tx: &Sender<Option<Field>>, cur_depth: i32) {
+    if cur_depth == 0 {
+        let tx = tx.clone();
         let mut f = f.clone();
         pool.execute(move || {
-            tx1.send(find_solution(&mut f)).unwrap_or(());
+            tx.send(find_solution(&mut f)).unwrap_or(());
         });
     } else {
         try_extend_field(
@@ -183,7 +183,7 @@ fn spawn_tasks(pool: &threadpool::ThreadPool, f: &mut Field, tx: &Sender<Option<
                 tx.send(Some(f.clone())).unwrap_or(());
             },
             |f| {
-                spawn_tasks(&pool, f, &tx, curr_depth - 1);
+                spawn_tasks(&pool, f, &tx, cur_depth - 1);
                 None
             },
         );
@@ -199,8 +199,7 @@ fn find_solution_parallel(mut f: Field) -> Option<Field> {
     let pool = threadpool::ThreadPool::new(8);
     spawn_tasks(&pool, &mut f, &tx, SPAWN_DEPTH);
     drop(tx);
-    let result = rx.into_iter().find_map(|x| x);
-    result
+    rx.into_iter().find_map(|x| x)
 }
 
 /// Юнит-тест, проверяющий, что `find_solution()` находит лексикографически минимальное решение на пустом поле.
