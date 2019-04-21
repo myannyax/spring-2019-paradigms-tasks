@@ -68,13 +68,14 @@ def test_pretty_print(capsys):
                        [BinaryOperation(Reference("x"), "+", Number(121))])
     pretty_print(cond)
     out, err = capsys.readouterr()
-    ans = "if ((x > 0)) {\n" \
-          "\tfoo(x);\n" \
-          "\tprint x;\n" \
-          "} else {\n" \
-          "\t(x + 121);\n" \
-          "}\n"
-    assert out == ans
+    ans = '''
+    if ((x > 0)) {
+    \tfoo(x);
+    \tprint x;
+    } else {
+    \t(x + 121);
+    }\n'''
+    assert out == dedent(ans).lstrip()
 
 
 def test_pretty_print_2(capsys):
@@ -94,19 +95,18 @@ def test_pretty_print_2(capsys):
         ),
     ])))
     out, err = capsys.readouterr()
-    ans = dedent(
-        '''
-        def main(arg1) {
-        \tread x;
-        \tprint x;
-        \tif ((2 == 3)) {
-        \t\tif (1) {
-        \t\t}
-        \t} else {
-        \t\texit((-arg1));
-        \t}
-        }\n''')
-    assert out == ans.lstrip()
+    ans = '''
+    def main(arg1) {
+    \tread x;
+    \tprint x;
+    \tif ((2 == 3)) {
+    \t\tif (1) {
+    \t\t}
+    \t} else {
+    \t\texit((-arg1));
+    \t}
+    }\n'''
+    assert out == dedent(ans).lstrip()
 
 
 def test_test_function_definition_2(capsys):
