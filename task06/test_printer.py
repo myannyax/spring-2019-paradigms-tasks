@@ -78,7 +78,7 @@ def test_pretty_print(capsys):
     assert out == dedent(ans).lstrip()
 
 
-def test_pretty_print_2(capsys):
+def test_pretty_print_from_readme(capsys):
     pretty_print(FunctionDefinition("main", Function(["arg1"], [
         Read("x"),
         Print(Reference("x")),
@@ -109,7 +109,7 @@ def test_pretty_print_2(capsys):
     assert out == dedent(ans).lstrip()
 
 
-def test_test_function_definition_2(capsys):
+def test_test_function_in_function_definition(capsys):
     f_def_1 = FunctionDefinition("foo_2", Function(["a", "b"],
                                                    [Print(Reference("a"))]))
     program = FunctionDefinition("foo", Function([], [f_def_1, Read("x")]))
