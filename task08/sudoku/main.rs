@@ -174,8 +174,8 @@ fn spawn_tasks(pool: &threadpool::ThreadPool, f: &mut Field, tx: &Sender<Option<
         let tx1 = tx.clone();
         let mut f = f.clone();
         pool.execute(move || {
-                        tx1.send(find_solution(&mut f)).unwrap_or(());
-                    });
+            tx1.send(find_solution(&mut f)).unwrap_or(());
+        });
     } else {
         try_extend_field(
             f,
@@ -199,7 +199,7 @@ fn find_solution_parallel(mut f: Field) -> Option<Field> {
     let pool = threadpool::ThreadPool::new(8);
     spawn_tasks(&pool, &mut f, &tx, SPAWN_DEPTH);
     drop(tx);
-    let result = rx.into_iter().find_map(|x|x);
+    let result = rx.into_iter().find_map(|x| x);
     result
 }
 
