@@ -81,7 +81,8 @@ class PrettyPrinter(model.ASTNodeVisitor):
             result += self.format_(elem, is_instruction=False)
             result += ", "
         if function_call.args:
-            result += self.format_(function_call.args[-1], is_instruction=False)
+            result += self.format_(function_call.args[-1],
+                                   is_instruction=False)
         result += ")"
         return self.end_line_if_statement(result)
 
