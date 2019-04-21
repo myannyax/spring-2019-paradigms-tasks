@@ -4,7 +4,19 @@ import abc
 
 class Scope:
     def __init__(self, parent=None):
-        raise NotImplementedError
+        self.parent = parent
+        self._data = {}
+
+    def __getitem__(self, key):
+        if key in self._data:
+            return self._data[key]
+        elif self.parent:
+            return self.parent[key]
+        else:
+            raise KeyError(key)
+
+    def __setitem__(self, key, value):
+        self._data[key] = value
 
 
 class ASTNode(metaclass=abc.ABCMeta):
@@ -71,20 +83,24 @@ class Number(ASTNode):
     быть можно положить в словарь в качестве ключа (см. специальные методы
     __eq__, __ne__, __hash__ — требуется реализовать две из них).
     """
+
     def __init__(self, value):
         self.value = int(value)
 
     def __hash__(self):
         return hash(self.value)
 
+    def evaluate(self, scope):
+        return self
+
+    def __bool__(self):
+        return bool(self.value)
+
     def __eq__(self, other):
         return Number(self.value == other.value)
 
     def __ne__(self, other):
         return Number(self.value != other.value)
-
-    def evaluate(self, scope):
-        raise NotImplementedError
 
     def accept(self, visitor):
         return visitor.visit_number(self)
@@ -106,7 +122,7 @@ class Function(ASTNode):
         self.args = args
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        return self
 
     def accept(self, visitor):
         pass
@@ -126,7 +142,8 @@ class FunctionDefinition(ASTNode):
         self.function = function
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        scope[self.name] = self.function
+        return self.function
 
     def accept(self, visitor):
         return visitor.visit_function_definition(self)
@@ -155,7 +172,12 @@ class Conditional(ASTNode):
         self.if_false = if_false
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        condition_result = self.condition.evaluate(scope)
+        result = Number(0)
+        branch = self.if_true if condition_result else self.if_false
+        for elem in branch or []:
+            result = elem.evaluate(scope)
+        return result
 
     def accept(self, visitor):
         return visitor.visit_conditional(self)
@@ -179,7 +201,9 @@ class Print(ASTNode):
         self.expr = expr
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        result = self.expr.evaluate(scope)
+        print(result.value)
+        return result
 
     def accept(self, visitor):
         return visitor.visit_print(self)
@@ -202,7 +226,9 @@ class Read(ASTNode):
         self.name = name
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        i = int(input())
+        scope[self.name] = Number(i)
+        return Number(i)
 
     def accept(self, visitor):
         return visitor.visit_read(self)
@@ -237,7 +263,14 @@ class FunctionCall(ASTNode):
         self.args = args
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        function = self.fun_expr.evaluate(scope)
+        call_scope = Scope(scope)
+        for name, value in zip(function.args, self.args):
+            call_scope[name] = value.evaluate(scope)
+        result = Number(0)
+        for elem in function.body:
+            result = elem.evaluate(call_scope)
+        return result
 
     def accept(self, visitor):
         return visitor.visit_function_call(self)
@@ -253,7 +286,7 @@ class Reference(ASTNode):
         self.name = name
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        return scope[self.name]
 
     def accept(self, visitor):
         return visitor.visit_reference(self)
@@ -283,22 +316,24 @@ class BinaryOperation(ASTNode):
         self.lhs = lhs
         self.op = op
         self.rhs = rhs
-        self.funcs = {'+': (lambda x, y: int(x.value + y.value)),
-                      '-': (lambda x, y: int(x.value - y.value)),
-                      '*': (lambda x, y: int(x.value * y.value)),
-                      '/': (lambda x, y: int(x.value // y.value)),
-                      '%': (lambda x, y: int(x.value % y.value)),
-                      '==': (lambda x, y: int(x.value == y.value)),
-                      '!=': (lambda x, y: int(x.value != y.value)),
-                      '<': (lambda x, y: int(x.value < y.value)),
-                      '>': (lambda x, y: int(x.value > y.value)),
-                      '<=': (lambda x, y: int(x.value <= y.value)),
-                      '>=': (lambda x, y: int(x.value >= y.value)),
-                      '&&': (lambda x, y: int(x.value and y.value)),
-                      '||': (lambda x, y: int(x.value or y.value))}
+        self.funcs = {'+': (lambda x, y: Number(int(x.value + y.value))),
+                      '-': (lambda x, y: Number(int(x.value - y.value))),
+                      '*': (lambda x, y: Number(int(x.value * y.value))),
+                      '/': (lambda x, y: Number(int(x.value // y.value))),
+                      '%': (lambda x, y: Number(int(x.value % y.value))),
+                      '==': (lambda x, y: Number(int(x.value == y.value))),
+                      '!=': (lambda x, y: Number(int(x.value != y.value))),
+                      '<': (lambda x, y: Number(int(x.value < y.value))),
+                      '>': (lambda x, y: Number(int(x.value > y.value))),
+                      '<=': (lambda x, y: Number(int(x.value <= y.value))),
+                      '>=': (lambda x, y: Number(int(x.value >= y.value))),
+                      '&&': (lambda x, y: Number(int(x.value and y.value))),
+                      '||': (lambda x, y: Number(int(x.value or y.value)))}
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        l_p = self.lhs.evaluate(scope)
+        r_p = self.rhs.evaluate(scope)
+        return self.funcs[self.op](l_p, r_p)
 
     def accept(self, visitor):
         return visitor.visit_binary_operation(self)
@@ -320,7 +355,11 @@ class UnaryOperation(ASTNode):
         self.expr = expr
 
     def evaluate(self, scope):
-        raise NotImplementedError
+        expr = self.expr.evaluate(scope)
+        if self.op == '-':
+            return Number(-expr.value)
+        else:
+            return Number(not bool(expr.value))
 
     def accept(self, visitor):
         return visitor.visit_unary_operation(self)
