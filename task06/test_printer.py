@@ -24,7 +24,7 @@ def test_print():
 
 def test_read():
     a = PrettyPrinter()
-    result = a.visit_read(Read('x'))
+    result = a.visit_read(Read("x"))
     assert result == "read x;\n"
 
 
@@ -36,27 +36,27 @@ def test_number():
 
 def test_ref():
     a = PrettyPrinter()
-    result = a.visit_reference(Reference('x'))
+    result = a.visit_reference(Reference("x"))
     assert result == "x;\n"
 
 
 def test_bin_op():
     a = PrettyPrinter()
-    add = BinaryOperation(Number(2), '+', Number(3))
-    mul = BinaryOperation(Number(1), '*', add)
+    add = BinaryOperation(Number(2), "+", Number(3))
+    mul = BinaryOperation(Number(1), "*", add)
     result = a.visit_binary_operation(mul)
     assert result == "(1 * (2 + 3));\n"
 
 
 def test_un_op():
     a = PrettyPrinter()
-    result = a.visit_unary_operation(UnaryOperation('-', Number(42)))
+    result = a.visit_unary_operation(UnaryOperation("-", Number(42)))
     assert result == "(-42);\n"
 
 
 def test_fcall():
     a = PrettyPrinter()
-    result = a.visit_function_call(FunctionCall(Reference('foo'),
+    result = a.visit_function_call(FunctionCall(Reference("foo"),
                                                 [Number(1), Number(2),
                                                  Number(3)]))
     assert result == "foo(1, 2, 3);\n"
@@ -69,42 +69,42 @@ def test_pretty_print(capsys):
                        [BinaryOperation(Reference("x"), "+", Number(121))])
     pretty_print(cond)
     out, err = capsys.readouterr()
-    ans = ("if ((x > 0)) {\n"
-           "\tfoo(x);\n"
-           "\tprint x;\n"
-           "} else {\n"
-           "\t(x + 121);\n"
-           "}\n")
+    ans = "if ((x > 0)) {\n" \
+          "\tfoo(x);\n" \
+          "\tprint x;\n" \
+          "} else {\n" \
+          "\t(x + 121);\n" \
+          "}\n"
     assert out == ans
 
 
 def test_pretty_print_2(capsys):
-    pretty_print(FunctionDefinition('main', Function(['arg1'], [
-        Read('x'),
-        Print(Reference('x')),
+    pretty_print(FunctionDefinition("main", Function(["arg1"], [
+        Read("x"),
+        Print(Reference("x")),
         Conditional(
-            BinaryOperation(Number(2), '==', Number(3)),
+            BinaryOperation(Number(2), "==", Number(3)),
             [
                 Conditional(Number(1), [], [])
             ],
             [
-                FunctionCall(Reference('exit'), [
-                    UnaryOperation('-', Reference('arg1'))
+                FunctionCall(Reference("exit"), [
+                    UnaryOperation("-", Reference("arg1"))
                 ])
             ],
         ),
     ])))
     out, err = capsys.readouterr()
-    ans = ("def main(arg1) {\n"
-           "\tread x;\n"
-           "\tprint x;\n"
-           "\tif ((2 == 3)) {\n"
-           "\t\tif (1) {\n"
-           "\t\t}\n"
-           "\t} else {\n"
-           "\t\texit((-arg1));\n"
-           "\t}\n"
-           "}\n")
+    ans = "def main(arg1) {\n" \
+          "\tread x;\n" \
+          "\tprint x;\n" \
+          "\tif ((2 == 3)) {\n" \
+          "\t\tif (1) {\n" \
+          "\t\t}\n" \
+          "\t} else {\n" \
+          "\t\texit((-arg1));\n" \
+          "\t}\n" \
+          "}\n"
     assert out == ans
 
 
