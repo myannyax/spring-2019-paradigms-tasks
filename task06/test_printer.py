@@ -109,8 +109,9 @@ def test_pretty_print_2(capsys):
 
 
 def test_fdef_2(capsys):
-    program = FunctionDefinition("foo", Function([], [
-        FunctionDefinition("foo_2", Function(["a", "b"], [Print(Reference("a"))])), Read("x")]))
+    f_def_1 = FunctionDefinition("foo_2", Function(["a", "b"],
+                                                   [Print(Reference("a"))]))
+    program = FunctionDefinition("foo", Function([], [f_def_1, Read("x")]))
     pretty_print(program)
     out, err = capsys.readouterr()
     ans = "def foo() {\n" \
