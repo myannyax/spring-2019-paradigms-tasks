@@ -12,23 +12,25 @@ class PrettyPrinter(model.ASTNodeVisitor):
         else:
             return ""
 
-    def end_line_if_statement(self, result):
+    def get_line(self, elem):
+        result = ""
+        if self.is_statement:
+            result += "\t" * self.indent
+        result += elem
         if self.is_statement:
             result += ";\n"
         return result
 
-    def add_list_with_indent(self, list):
+    def add_list_with_indent(self, lst):
         result = ""
         self.indent += 1
-        for exp in list:
+        for exp in lst:
             result += self.format_(exp)
         self.indent -= 1
         return result
 
     def visit_number(self, number):
-        result = self.add_leading_spaces()
-        result += str(number.value)
-        return self.end_line_if_statement(result)
+        return self.get_line(str(number.value))
 
     def visit_conditional(self, conditional):
         result = self.add_leading_spaces()
@@ -46,20 +48,14 @@ class PrettyPrinter(model.ASTNodeVisitor):
         return result
 
     def visit_print(self, print_):
-        result = self.add_leading_spaces()
-        result += "print "
-        result += self.format_(print_.expr, is_instruction=False)
-        return self.end_line_if_statement(result)
+        result = "print " + self.format_(print_.expr, is_instruction=False)
+        return self.get_line(result)
 
     def visit_read(self, read):
-        result = self.add_leading_spaces()
-        result += "read " + str(read.name)
-        return self.end_line_if_statement(result)
+        return self.get_line("read " + str(read.name))
 
     def visit_reference(self, reference):
-        result = self.add_leading_spaces()
-        result += reference.name
-        return self.end_line_if_statement(result)
+        return self.get_line(reference.name)
 
     def visit_function_definition(self, function_definition):
         result = self.add_leading_spaces()
@@ -75,8 +71,7 @@ class PrettyPrinter(model.ASTNodeVisitor):
         return result
 
     def visit_function_call(self, function_call):
-        result = self.add_leading_spaces()
-        result += self.format_(function_call.fun_expr, is_instruction=False)
+        result = self.format_(function_call.fun_expr, is_instruction=False)
         result += "("
         for elem in function_call.args[0:-1]:
             result += self.format_(elem, is_instruction=False)
@@ -85,23 +80,21 @@ class PrettyPrinter(model.ASTNodeVisitor):
             result += self.format_(function_call.args[-1],
                                    is_instruction=False)
         result += ")"
-        return self.end_line_if_statement(result)
+        return self.get_line(result)
 
     def visit_binary_operation(self, binary_operation):
-        result = self.add_leading_spaces()
-        result += "("
+        result = "("
         result += self.format_(binary_operation.lhs, is_instruction=False)
         result += " " + binary_operation.op + " "
         result += self.format_(binary_operation.rhs, is_instruction=False)
         result += ")"
-        return self.end_line_if_statement(result)
+        return self.get_line(result)
 
     def visit_unary_operation(self, unary_operation):
-        result = self.add_leading_spaces()
-        result += "(" + unary_operation.op
+        result = "(" + unary_operation.op
         result += self.format_(unary_operation.expr, is_instruction=False)
         result += ")"
-        return self.end_line_if_statement(result)
+        return self.get_line(result)
 
     def format_(self, program, *, is_instruction=True):
         new_printer = PrettyPrinter(self.indent, is_instruction)
