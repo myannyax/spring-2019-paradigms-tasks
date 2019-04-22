@@ -13,9 +13,7 @@ class PrettyPrinter(model.ASTNodeVisitor):
             return ""
 
     def get_line(self, elem):
-        result = ""
-        if self.is_statement:
-            result += "\t" * self.indent
+        result = self.add_leading_spaces()
         result += elem
         if self.is_statement:
             result += ";\n"
