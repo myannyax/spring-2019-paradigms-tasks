@@ -68,14 +68,14 @@ def test_pretty_print(capsys):
                        [BinaryOperation(Reference("x"), "+", Number(121))])
     pretty_print(cond)
     out, err = capsys.readouterr()
-    ans = '''
+    ans = """\
     if ((x > 0)) {
     \tfoo(x);
     \tprint x;
     } else {
     \t(x + 121);
-    }\n'''
-    assert out == dedent(ans).lstrip()
+    }\n"""
+    assert out == dedent(ans)
 
 
 def test_pretty_print_from_readme(capsys):
@@ -95,7 +95,7 @@ def test_pretty_print_from_readme(capsys):
         ),
     ])))
     out, err = capsys.readouterr()
-    ans = '''
+    ans = """\
     def main(arg1) {
     \tread x;
     \tprint x;
@@ -105,8 +105,8 @@ def test_pretty_print_from_readme(capsys):
     \t} else {
     \t\texit((-arg1));
     \t}
-    }\n'''
-    assert out == dedent(ans).lstrip()
+    }\n"""
+    assert out == dedent(ans)
 
 
 def test_test_function_in_function_definition(capsys):
@@ -116,14 +116,14 @@ def test_test_function_in_function_definition(capsys):
     pretty_print(program)
     out, err = capsys.readouterr()
 
-    ans = '''
+    ans = """\
     def foo() {
     \tdef foo_2(a, b) {
     \t\tprint a;
     \t}
     \tread x;
-    }\n'''
-    assert out == dedent(ans).lstrip()
+    }\n"""
+    assert out == dedent(ans)
 
 
 if __name__ == "__main__":

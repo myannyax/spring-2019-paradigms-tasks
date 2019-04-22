@@ -2,13 +2,13 @@ import model
 
 
 class PrettyPrinter(model.ASTNodeVisitor):
-    def __init__(self):
-        self.number_of_tabs = 0
-        self.is_statement = True
+    def __init__(self, indent=0, is_statement=True):
+        self.indent = indent
+        self.is_statement = is_statement
 
     def add_leading_spaces(self):
         if self.is_statement:
-            return "\t" * self.number_of_tabs
+            return "\t" * self.indent
         else:
             return ""
 
@@ -17,39 +17,43 @@ class PrettyPrinter(model.ASTNodeVisitor):
             result += ";\n"
         return result
 
+    def add_list_with_indent(self, list):
+        result = ""
+        self.indent += 1
+        for exp in list:
+            result += self.format_(exp)
+        self.indent -= 1
+        return result
+
     def visit_number(self, number):
         result = self.add_leading_spaces()
         result += str(number.value)
         return self.end_line_if_statement(result)
 
     def visit_conditional(self, conditional):
-        result = "\t" * self.number_of_tabs + "if ("
+        result = self.add_leading_spaces()
+        result += "if ("
         result += self.format_(conditional.condition, is_instruction=False)
         result += ") {\n"
         if conditional.if_true:
-            self.number_of_tabs += 1
-            for exp in conditional.if_true:
-                result += self.format_(exp)
-            self.number_of_tabs -= 1
-        result += "\t" * self.number_of_tabs + "}"
+            result += self.add_list_with_indent(conditional.if_true)
+        result += self.add_leading_spaces() + "}"
         if conditional.if_false:
             result += " else {" + "\n"
-            self.number_of_tabs += 1
-            for exp in conditional.if_false:
-                result += self.format_(exp)
-            self.number_of_tabs -= 1
-            result += "\t" * self.number_of_tabs + "}"
+            result += self.add_list_with_indent(conditional.if_false)
+            result += self.add_leading_spaces() + "}"
         result += "\n"
         return result
 
-    def visit_print(self, printt):
-        result = "\t" * self.number_of_tabs + "print "
-        result += self.format_(printt.expr, is_instruction=False)
+    def visit_print(self, print_):
+        result = self.add_leading_spaces()
+        result += "print "
+        result += self.format_(print_.expr, is_instruction=False)
         return self.end_line_if_statement(result)
 
     def visit_read(self, read):
-        result = "\t" * self.number_of_tabs + \
-                  "read " + str(read.name)
+        result = self.add_leading_spaces()
+        result += "read " + str(read.name)
         return self.end_line_if_statement(result)
 
     def visit_reference(self, reference):
@@ -58,19 +62,16 @@ class PrettyPrinter(model.ASTNodeVisitor):
         return self.end_line_if_statement(result)
 
     def visit_function_definition(self, function_definition):
-        result = "\t" * self.number_of_tabs + \
-                  "def " + function_definition.name
+        result = self.add_leading_spaces()
+        result += "def " + function_definition.name
         result += "("
         for elem in function_definition.function.args[0:-1]:
             result += elem + ', '
         if function_definition.function.args:
             result += function_definition.function.args[-1]
         result += ") {\n"
-        self.number_of_tabs += 1
-        for exp in function_definition.function.body:
-            result += self.format_(exp)
-        self.number_of_tabs -= 1
-        result += "\t" * self.number_of_tabs + "}\n"
+        result += self.add_list_with_indent(function_definition.function.body)
+        result += self.add_leading_spaces() + "}\n"
         return result
 
     def visit_function_call(self, function_call):
@@ -103,9 +104,7 @@ class PrettyPrinter(model.ASTNodeVisitor):
         return self.end_line_if_statement(result)
 
     def format_(self, program, *, is_instruction=True):
-        new_printer = PrettyPrinter()
-        new_printer.is_statement = is_instruction
-        new_printer.number_of_tabs = self.number_of_tabs
+        new_printer = PrettyPrinter(self.indent, is_instruction)
         return program.accept(new_printer)
 
 
