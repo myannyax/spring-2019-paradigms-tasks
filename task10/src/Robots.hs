@@ -35,13 +35,13 @@ getHealth (_, _, myHealth) = myHealth
 -- состояние робота
 
 setName :: Name -> Robot -> Robot
-setName = undefined
+setName newName (_, myAttack, myHealth) = (newName, myAttack, myHealth)
 
 setAttack :: Attack -> Robot -> Robot
-setAttack = undefined
+setAttack newAttack (myName, _, myHealth) = (myName, newAttack, myHealth)
 
 setHealth :: Health -> Robot -> Robot
-setHealth = undefined
+setHealth newHealth (myName, myAttack, _) = (myName, myAttack, newHealth)
 
 -- Шаг 2.
 -- Напишите функцию, которая ведет себя как __str__
@@ -51,7 +51,7 @@ setHealth = undefined
 -- > "Marvin, attack: 100, health: 500"
 
 printRobot :: Robot -> String
-printRobot = undefined
+printRobot (myName, myAttack, myHealth) = myName ++ ", attack: " ++ (show myAttack) ++ ", health: " ++ (show myHealth)
 
 -- Давайте теперь научим роботов драться друг с другом
 -- Напишем функцию damage которая причиняет роботу урон
@@ -65,7 +65,7 @@ damage victim amount = let
 -- Вам понадобится вспомогательная функция isAlive, которая бы проверяла, жив робот или не очень
 -- Робот считается живым, если его уровень здоровья строго больше нуля.
 isAlive :: Robot -> Bool
-isAlive = undefined
+isAlive (_, _, myHealth) = myHealth > 0
 
 -- Затем, используя функцию damage, напишите функцию, которая моделирует один раунд схватки между
 -- двумя роботами
@@ -76,7 +76,8 @@ isAlive = undefined
 -- Обратите внимание, что неживой робот не может атаковать. В этом случае нужно просто
 -- вернуть второго робота, как будто ничего и не было
 fight :: Robot -> Robot -> Robot
-fight attacker defender = undefined
+fight attacker defender | isAlive attacker = damage defender (getAttack attacker)
+fight _ defender = defender
 
 -- Наконец, напишите функцию, которая бы моделировала три раунда схватки между
 -- двумя роботами и возвращала бы победителя. Схватка происходит следующим образом:
@@ -88,24 +89,33 @@ fight attacker defender = undefined
 -- Если же так вышло, что после трех раундов у обоих роботов одинаковый уровень жизни, то
 -- победителем считается тот, кто ударял первым(то есть атакующий робот)
 threeRoundFight :: Robot -> Robot -> Robot
-threeRoundFight attacker defender = undefined
+threeRoundFight attacker defender = let
+        defender_after_first_round = fight attacker defender
+        attacker_after_second_round = fight defender_after_first_round attacker
+        defender_after_third_round = fight attacker_after_second_round defender_after_first_round
+     in
+         if ((getHealth defender_after_third_round) > (getHealth attacker_after_second_round))
+         then defender_after_third_round
+         else attacker_after_second_round
+
+
 
 -- Шаг 4.
 -- Создайте список из трех роботов(Абсолютно любых, но лучше живых, мы собираемся их побить)
 roboter :: [Robot]
-roboter = undefined
+roboter = [(robot "First" 15 43), (robot "Second" 12 37), (robot "Third" 17 39)]
 
 -- Затем создайте четвертого
 neueRobot :: Robot
-neueRobot = undefined
+neueRobot = (robot "NewRobot" 19 100)
 
 -- Используя частичное применение напишите функцию, которая бы принимала на вход робота
 -- и атаковала бы его роботом neueRobot
 neueRobotAttak :: Robot -> Robot
-neueRobotAttak = undefined
+neueRobotAttak = fight neueRobot
 
 -- Наконец, используя filter определите, кто из роботов, которых вы положили в список roboter,
 -- выживет, если neueRobot сразится с ним в одном раунде (neueRobot атакует).
 -- survivors должен быть подсписком roboter.
 survivors :: [Robot]
-survivors = undefined
+survivors = filter (isAlive . neueRobotAttak) roboter
