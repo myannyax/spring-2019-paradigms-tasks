@@ -13,23 +13,25 @@ head' (x:_) = x
 
 -- 2. tail' возвращает список без первого элемента, для пустого - пустой
 tail' :: [a] -> [a]
+tail' [] = []
 tail' (_:xs) = xs
 
 -- 3. take' возвращает первые n >= 0 элементов исходного списка
 take' :: Int -> [a] -> [a]
 take' 0 _ = []
-take' n (x:xs) = x:(take' (n - 1) xs)
+take' n (x:xs) = x : (take' (n - 1) xs)
 
 -- 4. drop' возвращает список без первых n >= 0 элементов; если n больше длины
 -- списка, то пустой список.
 drop' :: Int -> [a] -> [a]
+drop' _ [] = []
 drop' 0 a = a
-drop' n (_:xs) = (drop' (n - 1) xs)
+drop' n (_:xs) = drop' (n - 1) xs
 
 -- 5. filter' возвращает список из элементов, для которых f возвращает True
 filter' :: (a -> Bool) -> [a] -> [a]
 filter' _ [] = []
-filter' f (x:xs) = if (f x)
+filter' f (x:xs) = if f x
                    then x:(filter' f xs)
                    else (filter' f xs)
 
@@ -46,7 +48,7 @@ foldl'' f z (x:xs) = foldl'' f (f z x) xs
 -- concat' [1,2] [3] == [1,2,3]
 concat' :: [a] -> [a] -> [a]
 concat' [] b = b
-concat' (a:as) b = a:(concat' as b)
+concat' (a:as) bs = a:(concat' as bs)
 
 
 -- 8. quickSort' возвращает его отсортированный список
@@ -54,4 +56,9 @@ concat' (a:as) b = a:(concat' as b)
 -- (выбор pivot может быть любым)
 quickSort' :: Ord a => [a] -> [a]
 quickSort' [] = []
-quickSort' a = concat' (quickSort' (filter' (< head' a) a)) (concat' (filter' (== head' a) a) (quickSort' (filter' (> head' a) a)))
+quickSort' a = let
+               pivot = head' a
+               gt = (> pivot)
+               lt = (< pivot)
+               eq = (== pivot)
+               in concat' (quickSort' (filter' lt a)) (concat' (filter' eq a) (quickSort' (filter' gt a)))
