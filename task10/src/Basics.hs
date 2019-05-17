@@ -30,7 +30,7 @@ drop' n (_:xs) = (drop' (n - 1) xs)
 filter' :: (a -> Bool) -> [a] -> [a]
 filter' _ [] = []
 filter' f (x:xs) = if (f x)
-                   then x : (filter' f xs)
+                   then x:(filter' f xs)
                    else (filter' f xs)
 
 -- 6. foldl'' последовательно применяет функцию f к элементу списка l и значению,
@@ -46,7 +46,7 @@ foldl'' f z (x:xs) = foldl'' f (f z x) xs
 -- concat' [1,2] [3] == [1,2,3]
 concat' :: [a] -> [a] -> [a]
 concat' [] b = b
-concat' (a:as) b = a : concat' as b
+concat' (a:as) b = a:(concat' as b)
 
 
 -- 8. quickSort' возвращает его отсортированный список
