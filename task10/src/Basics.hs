@@ -47,7 +47,7 @@ foldl'' f z (x:xs) = foldl'' f (f z x) xs
 -- 7. concat' принимает на вход два списка и возвращает их конкатенацию
 -- concat' [1,2] [3] == [1,2,3]
 concat' :: [a] -> [a] -> [a]
-concat' [] b = b
+concat' [] bs = bs
 concat' (a:as) bs = a:(concat' as bs)
 
 
