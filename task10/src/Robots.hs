@@ -94,7 +94,7 @@ threeRoundFight attacker defender = let
         attacker_after_second_round = fight defender_after_first_round attacker
         defender_after_third_round = fight attacker_after_second_round defender_after_first_round
      in
-         if ((getHealth defender_after_third_round) > (getHealth attacker_after_second_round))
+         if (getHealth defender_after_third_round) > (getHealth attacker_after_second_round)
          then defender_after_third_round
          else attacker_after_second_round
 
@@ -103,11 +103,11 @@ threeRoundFight attacker defender = let
 -- Шаг 4.
 -- Создайте список из трех роботов(Абсолютно любых, но лучше живых, мы собираемся их побить)
 roboter :: [Robot]
-roboter = [(robot "First" 15 43), (robot "Second" 12 37), (robot "Third" 17 39)]
+roboter = [robot "First" 15 43, robot "Second" 12 37, robot "Third" 17 39]
 
 -- Затем создайте четвертого
 neueRobot :: Robot
-neueRobot = (robot "NewRobot" 19 100)
+neueRobot = robot "NewRobot" 19 100
 
 -- Используя частичное применение напишите функцию, которая бы принимала на вход робота
 -- и атаковала бы его роботом neueRobot

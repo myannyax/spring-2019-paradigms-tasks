@@ -38,7 +38,7 @@ testsBasics = testGroup "Unit tests for Basics tasks"
     , testCase "concat' works on finite lists as expected" $
         concat' [1,2,3] [4,5,6] @?= [1..6]
 
-    , testCase "concat' works on infinite lists as expected" $
+    , testCase "concat' works on infinite lists as a second argument as expected" $
         take' 6 (concat' [1,2,3] [4..]) @?= [1..6]
 
     , testCase "quickSort actualy sorts the list" $
