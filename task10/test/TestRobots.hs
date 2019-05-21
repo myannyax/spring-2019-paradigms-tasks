@@ -33,4 +33,6 @@ testsRobots = let
             fight walter_a walter @?= setHealth 30 walter
         , testCase "Test for threeRoundFight" $
             threeRoundFight walter_a walter @?= setHealth 30 walter
+        , testCase "Test for neueAttack" $
+            survivors @?= roboter
         ]
