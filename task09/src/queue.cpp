@@ -17,9 +17,13 @@ void queue_init(Queue *q) {
     q->last = nullptr;
 }
 
-void queue_destroy(Queue *q) { assert(!q->head); }
+void queue_destroy(Queue *q) {
+    assert(!q->head);
+}
 
-bool queue_empty(Queue *q) { return !q->head; }
+bool queue_empty(Queue *q) {
+    return !q->head;
+}
 
 void queue_push(Queue *q, void *data) {
     QueueNode *node = static_cast<QueueNode *>(malloc(sizeof(QueueNode)));

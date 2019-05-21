@@ -1,16 +1,16 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 
-#include "doctest.h"
 #include "queue.h"
+#include "doctest.h"
 
-TEST_CASE ("Queue inited and destroyed") {
+TEST_CASE("Queue inited and destroyed") {
     Queue q;
     queue_init(&q);
     CHECK(queue_empty(&q));
     queue_destroy(&q);
 }
 
-TEST_CASE ("Queue pushes and pops") {
+TEST_CASE("Queue pushes and pops") {
     Queue q;
     queue_init(&q);
 
@@ -32,7 +32,7 @@ TEST_CASE ("Queue pushes and pops") {
     queue_destroy(&q);
 }
 
-TEST_CASE ("Queue can be refilled") {
+TEST_CASE("Queue can be refilled") {
     Queue q;
     queue_init(&q);
 
