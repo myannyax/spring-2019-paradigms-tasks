@@ -1,8 +1,8 @@
 #ifndef TSQUEUE_H_
 #define TSQUEUE_H_
 
-#include <pthread.h>
 #include "queue.h"
+#include <pthread.h>
 
 extern "C" {
 
@@ -12,8 +12,9 @@ extern "C" {
  */
 
 struct ThreadsafeQueue {
-    Queue q;
-    // TODO
+  Queue q;
+  pthread_mutex_t mutex;
+  pthread_cond_t not_empty;
 };
 
 /**
