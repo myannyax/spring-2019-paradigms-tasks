@@ -47,10 +47,10 @@ class Map t where
     insertWithKey f key = insertWith (f key) key
 
     delete :: Ord k => k -> t k a -> t k a
-    delete = alter (const Nothing)
+    delete = alter $ const Nothing
 
     adjust :: Ord k => (a -> a) -> k -> t k a -> t k a
-    adjust f = alter (fmap f)
+    adjust = alter . fmap
 
     adjustWithKey :: Ord k => (k -> a -> a) -> k -> t k a -> t k a
     adjustWithKey f key = adjust (f key) key

@@ -29,8 +29,12 @@ mapTests name (_ :: Proxy m) =
     testGroup name [
         testGroup "Smoke tests" [
             testCase "fromList" $
-                let map = fromList [(1, "a"), (2, "b")] :: m Int String in do
+                let
+                    map = fromList [(1, "a"), (2, "b")] :: m Int String
+                    map_2 = fromList [] :: m Int String
+                in do
                 size map @?= 2
+                Map.null map_2 @?= True
                 Map.lookup 1 map @?= Just "a"
                 Map.lookup 2 map @?= Just "b"
 
@@ -81,6 +85,16 @@ mapTests name (_ :: Proxy m) =
             ,testCase "null" $
                 let map = (singleton 3 "c") :: m Int String in
                 Map.null map @?= False
+
+            ,testCase "alter" $
+                let map = (singleton 3 "c") :: m Int String in
+                Map.lookup 2 (Map.alter (const $ Just "b") 2 map) @?= Just "b"
+
+            , testCase "lookup" $
+                let map = (singleton 3 "c") :: m Int String in do
+                Map.lookup 3 map @?= Just "c"
+                Map.lookup 1 map @?= Nothing
+
         ]
     ]
 

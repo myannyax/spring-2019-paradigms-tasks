@@ -49,7 +49,7 @@ instance Map NaiveTree where
     singleton k v = Node k v Nil Nil
 
     toAscList Nil = []
-    toAscList (Node k v l r) = toAscList l ++ [(k, v)] ++ toAscList r
+    toAscList (Node k v l r) = toAscList l ++ (k, v) : toAscList r
 
     alter f k Nil =
       case f Nothing of Nothing -> Nil
